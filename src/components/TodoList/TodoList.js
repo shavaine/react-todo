@@ -1,10 +1,11 @@
 import Todo from '../Todo/Todo'
 
-const TodoList = ({todos}) => {
+
+const TodoList = ({todos, removeTodo}) => {
   return (
-    <ul>
-        {todos.map((todo, index) => <Todo key={index} todo={todo} /> )}
-    </ul>
+    <div>
+        {todos.map((todo, index) => <Todo key={index} todo={todo} removeTodo={removeTodo} /> )}
+    </div>        
   )
 }
 

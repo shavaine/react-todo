@@ -11,7 +11,10 @@ const TodoContainer = () => {
         setTodos([todo,...todos])
     }
 
-    
+    const RemoveTodo = (todo) => {
+        const newTodos = todos.filter((currentTodo) => currentTodo !== todo);
+        setTodos(newTodos);
+    }
 
 
     return (
@@ -19,7 +22,7 @@ const TodoContainer = () => {
             <div className="row">
                 <h3 className="text-center">To-do List</h3>
                 <AddTodoForm addTodo={AddTodo} />
-                <TodoList todos={todos} />
+                <TodoList todos={todos} removeTodo={RemoveTodo} />
             </div>
         </div>
     )
