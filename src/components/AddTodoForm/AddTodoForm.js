@@ -15,10 +15,11 @@ const AddTodoForm = ({addTodo}) => {
 
   return (
     <div>
-        <form onSubmit={handleSubmit}>
-            <input type="text" name="" value={newTodo} onChange={handleChange}></ input>
-            <button onSubmit={handleSubmit} className="btn btn-success"><i className="bi bi-plus-circle"></i> Add</button>
+        <form onSubmit={handleSubmit} className="input-group mb-3">
+            <input className="form-control" type="text" name="" value={newTodo} onChange={handleChange}></ input>
+            <button onSubmit={handleSubmit} className="btn btn-success"><i className="bi bi-plus-circle"></i> Add Todo</button>
         </form>
+        <hr />
     </div>
   )
 }
