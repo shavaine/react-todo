@@ -23,7 +23,7 @@ const TodoContainer = () => {
             <div className="row justify-content-center align-items-center vh-100">
                 <div className="col-8 border p-4">
                     <h3 className="text-center">To-do List</h3>
-                    <SearchBar />
+                    <SearchBar todos={todos} />
                     <AddTodoForm addTodo={AddTodo} />
                     <TodoList todos={todos} removeTodo={RemoveTodo} />
                 </div>

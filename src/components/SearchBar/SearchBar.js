@@ -1,16 +1,35 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
-const SearchBar = () => {
+const SearchBar = ({todos}) => {
     const [search, setSearch] = useState("");
+    const [results, setResults] = useState([]);
 
     const handleChange = ({target}) =>{
-        setSearch(target.value);
+        setSearch(target.value.toLowerCase());
     }
 
+    useEffect(() => {
+        setResults(
+            todos.filter((todo) => {
+                if (search === '') {
+                    return ''
+                } else {
+                    return todo.toLowerCase().includes(search)
+                }
+            })
+        )
+    }, [search, todos]) 
+
+
     return (
-        <form>
-            <input type="text" name="" value={search} onChange={handleChange} />  
-        </form>
+        <div className="mb-3">
+            <input placeholder="Search" className="form-control" type="text" name="" value={search} onChange={handleChange} /> 
+            <ul>
+                {results.map((todo) => {
+                    return <li>{todo}</li>
+                })}
+            </ul>
+        </div>
     )
 }
 
