@@ -6,7 +6,6 @@ import Home from './components/Home/Home';
 
 function App() {
   const allTodos = ['take out the trash', 'vaccum the stairs', 'go for a walk'];
-  // const list
 
   const [todos, setTodos] = useState(allTodos);
   const [UI, setUI] = useState('home')
@@ -40,8 +39,6 @@ function App() {
         </div>
         <div className='col-10'>
           {CurrentUI()}
-
-          {/* <TodoContainer todos={todos} AddTodo={AddTodo} RemoveTodo={RemoveTodo} /> */}
         </div>
       </div>    
     </div>
