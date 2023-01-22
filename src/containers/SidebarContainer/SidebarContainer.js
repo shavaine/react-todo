@@ -1,14 +1,14 @@
-const SidebarContainer = () => {
+const SidebarContainer = ({changeUI}) => {
   return (
     <div>
         <h3 className="text-center">React-Todo</h3>
         <hr />
         <ul className="nav nav-pills flex-column mb-auto">
-        <li><a href="#" class="nav-link">Home</a></li>
-        <li><a href="#" className="nav-link">All Todos</a></li>
-        <li><a href="#" className="nav-link">Completed</a></li>
-        <li><a href="#" className="nav-link">Create List</a></li>
-        <li><a href="#" className="nav-link">List</a></li>
+        <li onClick={() => changeUI("home")} className="nav-link">Home</li>
+        <li onClick={() => changeUI("all todos")} className="nav-link">All Todos</li>
+        <li className="nav-link">Completed</li>
+        <li className="nav-link">Create List</li>
+        <li className="nav-link">List</li>
         </ul>
     </div>  
   )
