@@ -53,7 +53,7 @@ function App() {
   return (
     <div className='container-fluid'>
       <div className="row">
-        <div className='col-2'>
+        <div className='col-2 bg-secondary'>
           <SidebarContainer changeUI={ChangeUI} />
         </div>
         <div className='col-10'>

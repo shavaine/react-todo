@@ -1,6 +1,6 @@
 const Todo = ({todo, removeTodo, toggleComplete, toggleUnComplete, ui}) => {
-    const checkedStyle = "form-control mb-0 text-decoration-line-through"
-    const unCheckedStyle = "form-control mb-0"
+    const checkedStyle = "form-control mb-0 text-decoration-line-through overflow-x-scroll"
+    const unCheckedStyle = "form-control mb-0 overflow-x-scroll"
 
     const handleInputChange = ({target}) => {
         if (ui === "completed") {

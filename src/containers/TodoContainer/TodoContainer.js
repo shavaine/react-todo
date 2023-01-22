@@ -5,11 +5,13 @@ import SearchBar from "../../components/SearchBar/SearchBar";
 const TodoContainer = ({todos, AddTodo, removeTodo, toggleComplete, ui}) => {
 
     return (
-        <div className="border p-4">
-            <h3 className="text-center">To-do List</h3>
+        <div className=" p-4 vh-100 d-flex flex-column">
             <SearchBar todos={todos} />
+            <h3 className="text-center">To-do List</h3>
+            <hr />
+            <TodoList todos={todos} removeTodo={removeTodo} toggleComplete={toggleComplete} ui={ui} /> 
+            <hr />
             <AddTodoForm addTodo={AddTodo} />
-            <TodoList todos={todos} removeTodo={removeTodo} toggleComplete={toggleComplete} ui={ui} />
         </div>
     )
 }
