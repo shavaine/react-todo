@@ -1,4 +1,4 @@
-const SidebarContainer = ({changeUI}) => {
+const SidebarContainer = ({changeUI, list, addList}) => {
   return (
     <div className="d-flex flex-column vh-100 pb-4 pt-3">
         <h3 className="text-center">React-Todo</h3>
@@ -9,9 +9,12 @@ const SidebarContainer = ({changeUI}) => {
           <li onClick={() => changeUI("completed")} className="text-start btn btn-outline-dark border-0" data-bs-toggle="pill">Completed</li>
           <li className="text-start btn btn-outline-dark border-0 dropdown-toggle" data-bs-toggle="dropdown">List</li>
           <ul className="dropdown-menu">
-            <li className=" dropdown-item text-start btn btn-outline-dark border-0" data-bs-toggle="pill">List 1</li>
+            {list.map((list) => {
+              return <li className=" dropdown-item text-start btn btn-outline-dark border-0" data-bs-toggle="pill">{list.listName}</li>
+            })}
+            {/* <li className=" dropdown-item text-start btn btn-outline-dark border-0" data-bs-toggle="pill">List 1</li>
             <li className=" dropdown-item text-start btn btn-outline-dark border-0" data-bs-toggle="pill">List 2</li>
-            <li className=" dropdown-item text-start btn btn-outline-dark border-0" data-bs-toggle="pill">List 3</li>
+            <li className=" dropdown-item text-start btn btn-outline-dark border-0" data-bs-toggle="pill">List 3</li> */}
           </ul>
         </ul>
         <hr />

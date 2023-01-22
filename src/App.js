@@ -20,9 +20,10 @@ const starterList = [
 function App() {
   const [UI, setUI] = useState('home')
   const [todos, setTodos] = useState(starterTodos);
-  const [completedTodos, setCompletedTodo] = useState([])
-  const [list, setList] = useState(starterList)
-  const [IDCounter, setIDCounter] = useState(3)
+  const [completedTodos, setCompletedTodo] = useState([]);
+  const [list, setList] = useState(starterList);
+  const [IDCounter, setIDCounter] = useState(3);
+  const [listIDCounter, setListIDCounter] = useState(3);
   
 
   const AddTodo = (todo) => {
@@ -43,6 +44,13 @@ function App() {
       const newTodos = completedTodos.filter((currentTodo) => currentTodo.id !== todoId);
       setCompletedTodo(newTodos);
     }
+  }
+
+  const AddList = (listName) => {
+    const newId = listIDCounter + 1
+    setListIDCounter(newId)
+    const newList = {id: [newId], listName: [listName], todos: []}
+    setList([newList,...list])
   }
 
   const ChangeUI = (newUI) => {
@@ -77,7 +85,7 @@ function App() {
     <div className='container-fluid'>
       <div className="row">
         <div className='col-2 bg-secondary'>
-          <SidebarContainer changeUI={ChangeUI} />
+          <SidebarContainer changeUI={ChangeUI} list={list} addList={AddList} />
         </div>
         <div className='col-10'>
           {CurrentUI()}
