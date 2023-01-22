@@ -1,13 +1,13 @@
-import { useState } from "react";
-
-const Todo = ({todo, removeTodo}) => {
-    const [checked, setChecked] = useState(false);
-
+const Todo = ({todo, removeTodo, toggleComplete, toggleUnComplete, ui}) => {
     const checkedStyle = "form-control mb-0 text-decoration-line-through"
     const unCheckedStyle = "form-control mb-0"
 
     const handleInputChange = ({target}) => {
-        setChecked(target.checked)
+        if (ui === "completed") {
+            toggleUnComplete(todo);
+        } else {
+            toggleComplete(todo)
+        }
     };
 
     const handleClick = () => {
@@ -17,10 +17,11 @@ const Todo = ({todo, removeTodo}) => {
     return (
         <div className="input-group mb-3">
             <div className="input-group-text">
-                <input className="form-check-input mt-0" checked={checked} type="checkbox" onChange={handleInputChange} />
+                <input className="form-check-input mt-0" checked={ui === "completed" ? true : false} type="checkbox" onChange={handleInputChange} />
             </div>
-            <p className={checked ? checkedStyle : unCheckedStyle}>{todo}</p>
-            <button onClick={handleClick} className="btn btn-danger"><i className="bi bi-x-circle"></i></button>
+            <p className={ui === "completed" ? checkedStyle : unCheckedStyle}>{todo}</p>
+            {ui === "completed" && <button onClick={handleClick} className="btn btn-danger"><i className="bi bi-x-circle"></i></button>}
+            {/* <button onClick={handleClick} className="btn btn-danger"><i className="bi bi-x-circle"></i></button> */}
         </div>
     )
 }
