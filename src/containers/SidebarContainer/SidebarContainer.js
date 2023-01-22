@@ -8,7 +8,12 @@ const SidebarContainer = ({changeUI}) => {
           <li onClick={() => changeUI("all todos")} className="text-start btn btn-outline-dark border-0" data-bs-toggle="pill">All To-do's</li>
           <li onClick={() => changeUI("completed")} className="text-start btn btn-outline-dark border-0" data-bs-toggle="pill">Completed</li>
           <li className="text-start btn btn-outline-dark border-0" data-bs-toggle="pill">Create List</li>
-          <li className="text-start btn btn-outline-dark border-0" data-bs-toggle="pill">List</li>
+          <li className="text-start btn btn-outline-dark border-0 dropdown-toggle" data-bs-toggle="dropdown">List</li>
+          <ul className="dropdown-menu">
+            <li className=" dropdown-item text-start btn btn-outline-dark border-0" data-bs-toggle="pill">List 1</li>
+            <li className=" dropdown-item text-start btn btn-outline-dark border-0" data-bs-toggle="pill">List 2</li>
+            <li className=" dropdown-item text-start btn btn-outline-dark border-0" data-bs-toggle="pill">List 3</li>
+          </ul>
         </ul>
         <hr />
         <div className="input-group">
