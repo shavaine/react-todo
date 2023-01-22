@@ -1,10 +1,10 @@
 import TodoList from "../TodoList/TodoList"
 
-const Completed = ({todos, removeTodo, toggleTodoStatus, ui}) => {
+const Completed = ({todos, removeTodo, toggleTodoStatus}) => {
   return (
     <div className="border p-4">
         <h3 className="text-center">Completed To-dos</h3>
-        <TodoList todos={todos} removeTodo={removeTodo} toggleTodoStatus={toggleTodoStatus} ui={ui}/>
+        <TodoList todos={todos} removeTodo={removeTodo} toggleTodoStatus={toggleTodoStatus}/>
     </div>
   )
 }
