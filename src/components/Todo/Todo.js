@@ -15,7 +15,7 @@ const Todo = ({todo, removeTodo, toggleTodoStatus, checked, id}) => {
             <div className="input-group-text">
                 <input className="form-check-input mt-0" checked={checked} type="checkbox" onChange={handleInputChange} />
             </div>
-            <p className={checked ? checkedStyle : unCheckedStyle}>{id}{todo}</p>
+            <p className={checked ? checkedStyle : unCheckedStyle}>{todo}</p>
             {checked && <button onClick={handleClick} className="btn btn-danger"><i className="bi bi-x-circle"></i></button>}
         </div>
     )

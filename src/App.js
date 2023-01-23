@@ -3,58 +3,63 @@ import './App.css';
 import TodoContainer from './containers/TodoContainer/TodoContainer';
 import SidebarContainer from './containers/SidebarContainer/SidebarContainer';
 import Home from './components/Home/Home';
-import Completed from './components/Completed/Completed';
+import Completed from './containers/CompletedContainer/CompletedContainer';
+import ListContainer from './containers/ListContainer/ListContainer';
 
 const starterTodos = [
-  {id: 1, task: "example to-do 1", checked: false},
-  {id: 2, task: "example to-do 2", checked: false},
-  {id: 3, task: "example to-do 3", checked: false},
-]
-
-const starterList = [
-  {id: 1, listName: "Example List 1", todos: []},
-  {id: 2, listName: "Example List 2", todos: []},
-  {id: 3, listName: "Example List 3", todos: []},
+  {id: 1, task: "example to-do 1", checked: false, list: 'Example List 1'},
+  {id: 2, task: "example to-do 2", checked: false, list: 'Example List 1'},
+  {id: 3, task: "example to-do 3", checked: false, list: 'Example List 2'},
+  {id: 4, task: "example to-do 4", checked: false, list: 'Example List 3'},
+  {id: 5, task: "example to-do 5", checked: false, list: 'Example List 3'},
 ]
 
 function App() {
   const [UI, setUI] = useState('home')
   const [todos, setTodos] = useState(starterTodos);
-  const [completedTodos, setCompletedTodo] = useState([]);
-  const [list, setList] = useState(starterList);
-  const [IDCounter, setIDCounter] = useState(3);
-  const [listIDCounter, setListIDCounter] = useState(3);
   
+  const [listInView, setListInView] = useState('')
+  const getList = () => {
+    const notUniqueList = todos.map((todo) => todo.list);
+    const uniqueList = [...new Set(notUniqueList)]
+    return uniqueList
+  }
+  const [list, setList] = useState(getList())
+  const [completedTodos, setCompletedTodo] = useState([]);
+  const [IDCounter, setIDCounter] = useState(3);
 
   const AddTodo = (todo) => {
       const newId = IDCounter + 1
       setIDCounter(newId)
-      const newTodo = {id: [newId], task: [todo], checked: false}
+      const newTodo = {id: [newId], task: [todo], checked: false, list: ''}
       setTodos([newTodo,...todos])
   }
 
-  const RemoveTodo = (todoId, type) => {
+  const RemoveTodo = (todoId, type, listId) => {
     if (type === "check") {
       const newTodos = todos.filter((currentTodo) => currentTodo.id !== todoId);
       setTodos(newTodos);
     } else if (type === "un-check") {
       const newTodos = completedTodos.filter((currentTodo) => currentTodo.id !== todoId);
       setCompletedTodo(newTodos);
-    } else {
-      const newTodos = completedTodos.filter((currentTodo) => currentTodo.id !== todoId);
-      setCompletedTodo(newTodos);
-    }
+    } 
   }
 
   const AddList = (listName) => {
-    const newId = listIDCounter + 1
-    setListIDCounter(newId)
-    const newList = {id: [newId], listName: [listName], todos: []}
-    setList([newList,...list])
+    if (list.includes(listName)) {
+      alert('Sorry that list already exist.')
+    } else {
+      setList([listName,...list])
+    }
   }
 
-  const ChangeUI = (newUI) => {
-    setUI(newUI)
+  const ChangeUI = (newUI, currentList) => {
+    if (newUI === "list") {
+      setListInView(currentList)
+      setUI(newUI);
+    } else{
+      setUI(newUI)
+    }
   }
 
   const ToggleTodoStatus = (todoId, checked) => {
@@ -78,6 +83,8 @@ function App() {
       return <TodoContainer todos={todos} AddTodo={AddTodo} toggleTodoStatus={ToggleTodoStatus} ui={UI} />
     } else if (UI === "completed"){
       return <Completed todos={completedTodos} removeTodo={RemoveTodo} toggleTodoStatus={ToggleTodoStatus} ui={UI}/>
+    } else if (UI === "list") {
+      return <ListContainer list={todos.filter((todo) => todo.list === listInView)} removeTodo={RemoveTodo} toggleTodoStatus={ToggleTodoStatus} />
     }
   }
 
@@ -85,7 +92,7 @@ function App() {
     <div className='container-fluid'>
       <div className="row">
         <div className='col-2 bg-secondary'>
-          <SidebarContainer changeUI={ChangeUI} list={list} addList={AddList} />
+          <SidebarContainer changeUI={ChangeUI} addList={AddList} list={list} />
         </div>
         <div className='col-10'>
           {CurrentUI()}

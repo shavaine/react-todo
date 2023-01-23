@@ -1,4 +1,4 @@
-import TodoList from "../TodoList/TodoList"
+import TodoList from "../../components/TodoList/TodoList"
 
 const Completed = ({todos, removeTodo, toggleTodoStatus}) => {
   return (
