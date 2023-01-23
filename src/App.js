@@ -30,7 +30,7 @@ function App() {
   const AddTodo = (todo) => {
       const newId = IDCounter + 1
       setIDCounter(newId)
-      const newTodo = {id: [newId], task: [todo], checked: false, list: ''}
+      const newTodo = {id: newId, task: todo, checked: false, list: listInView}
       setTodos([newTodo,...todos])
   }
 
@@ -59,6 +59,7 @@ function App() {
       setListInView(currentList)
       setUI(newUI);
     } else{
+      setListInView('')
       setUI(newUI)
     }
   }
@@ -85,7 +86,7 @@ function App() {
     } else if (UI === "completed"){
       return <Completed todos={completedTodos} removeTodo={RemoveTodo} toggleTodoStatus={ToggleTodoStatus} ui={UI}/>
     } else if (UI === "list") {
-      return <ListContainer list={todos.filter((todo) => todo.list === listInView)} inView={listInView} removeTodo={RemoveTodo} toggleTodoStatus={ToggleTodoStatus} />
+      return <ListContainer list={todos.filter((todo) => todo.list === listInView)} inView={listInView} removeTodo={RemoveTodo} toggleTodoStatus={ToggleTodoStatus} addTodo={AddTodo} />
     }
   }
 
