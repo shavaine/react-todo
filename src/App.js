@@ -17,7 +17,6 @@ const starterTodos = [
 function App() {
   const [UI, setUI] = useState('home')
   const [todos, setTodos] = useState(starterTodos);
-  
   const [listInView, setListInView] = useState('')
   const getList = () => {
     const notUniqueList = todos.map((todo) => todo.list);
@@ -26,7 +25,7 @@ function App() {
   }
   const [list, setList] = useState(getList())
   const [completedTodos, setCompletedTodo] = useState([]);
-  const [IDCounter, setIDCounter] = useState(3);
+  const [IDCounter, setIDCounter] = useState(5);
 
   const AddTodo = (todo) => {
       const newId = IDCounter + 1
@@ -46,8 +45,10 @@ function App() {
   }
 
   const AddList = (listName) => {
-    if (list.includes(listName)) {
-      alert('Sorry that list already exist.')
+    if (listName === '') {
+      alert('Sorry, list must contain a value');
+    } else if (list.includes(listName)) {
+      alert('Sorry that list already exist.');
     } else {
       setList([listName,...list])
     }
@@ -84,7 +85,7 @@ function App() {
     } else if (UI === "completed"){
       return <Completed todos={completedTodos} removeTodo={RemoveTodo} toggleTodoStatus={ToggleTodoStatus} ui={UI}/>
     } else if (UI === "list") {
-      return <ListContainer list={todos.filter((todo) => todo.list === listInView)} removeTodo={RemoveTodo} toggleTodoStatus={ToggleTodoStatus} />
+      return <ListContainer list={todos.filter((todo) => todo.list === listInView)} inView={listInView} removeTodo={RemoveTodo} toggleTodoStatus={ToggleTodoStatus} />
     }
   }
 
