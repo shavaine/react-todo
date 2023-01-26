@@ -1,16 +1,17 @@
-import Todo from '../Todo/Todo'
+import CompletedTodo from '../Todo/CompletedTodo';
 import './styles.css';
 
 
-const TodoList = ({todos, toggleTodoStatus}) => {
+const CompletedTodoList = ({todos, removeTodo, toggleTodoStatus}) => {
   return (
     <div className='h-100 overflow' >
       {todos.map((todo) => 
-      <Todo 
+      <CompletedTodo 
         key={todo.id} 
         id={todo.id} 
         todo={todo.task} 
-        checked={todo.checked}  
+        checked={todo.checked} 
+        removeTodo={removeTodo} 
         toggleTodoStatus={toggleTodoStatus} 
       /> 
         )}
@@ -18,4 +19,4 @@ const TodoList = ({todos, toggleTodoStatus}) => {
   )
 }
 
-export default TodoList
+export default CompletedTodoList;

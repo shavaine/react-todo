@@ -1,4 +1,4 @@
-import TodoList from "../../components/TodoList/TodoList"
+import CompletedTodoList from "../../components/TodoList/CompletedTodoList";
 import SearchBar from "../../components/SearchBar/SearchBar";
 import { useState } from "react";
 
@@ -10,7 +10,7 @@ const Completed = ({todos, removeTodo, toggleTodoStatus}) => {
         <SearchBar todos={todos} setResults={setResults} />
         <h3 className="text-center">Completed To-dos</h3>
         <hr />
-        <TodoList todos={results} removeTodo={removeTodo} toggleTodoStatus={toggleTodoStatus}/>
+        <CompletedTodoList todos={results} removeTodo={removeTodo} toggleTodoStatus={toggleTodoStatus}/>
     </div>
   )
 }

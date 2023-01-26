@@ -11,7 +11,7 @@ const TodoContainer = ({todos, AddTodo, removeTodo, toggleTodoStatus}) => {
             <SearchBar todos={todos} setResults={setResults} />
             <h3 className="text-center">To-do List</h3>
             <hr />
-            <TodoList todos={results} removeTodo={removeTodo} toggleTodoStatus={toggleTodoStatus} /> 
+            <TodoList todos={results} toggleTodoStatus={toggleTodoStatus} /> 
             <hr />
             <AddTodoForm addTodo={AddTodo} />
         </div>
