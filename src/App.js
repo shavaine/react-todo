@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import TodoContainer from './containers/TodoContainer/TodoContainer';
 import SidebarContainer from './containers/SidebarContainer/SidebarContainer';
 import Home from './components/Home/Home';
 import Completed from './containers/CompletedContainer/CompletedContainer';
 import ListContainer from './containers/ListContainer/ListContainer';
+import PocketBase from 'pocketbase';
+const pb = new PocketBase(process.env.REACT_APP_URL);
 
 const starterTodos = [
   {id: 1, task: "example to-do 1", checked: false, list: 'Example List 1'},
@@ -17,6 +19,16 @@ const starterTodos = [
 function App() {
   const [UI, setUI] = useState('home')
   const [todos, setTodos] = useState(starterTodos);
+  const[changes, setChanges] = useState([])
+  useEffect(() => {
+    const track = async () => {
+      const change = pb.collection('todos').subscribe('*', function (e) {
+          setChanges(change);
+      });
+    }
+    track();
+  }, [changes]);
+
   const [listInView, setListInView] = useState('')
   const getList = () => {
     const notUniqueList = todos.map((todo) => todo.list);
@@ -26,6 +38,16 @@ function App() {
   const [list, setList] = useState(getList())
   const [completedTodos, setCompletedTodo] = useState([]);
   const [IDCounter, setIDCounter] = useState(5);
+  const [p_todos, setP_todos] = useState([]);
+  useEffect(() => {
+    const getTodos = async () => {
+        const records = await pb.collection('todos').getFullList({
+            sort: '-created',
+        });
+        setP_todos(records);
+    }
+    getTodos()
+  }, [changes]);
 
   const AddTodo = (todo) => {
       const newId = IDCounter + 1
@@ -84,7 +106,7 @@ function App() {
     if (UI === "home") {
       return <Home />
     } else if (UI === "all todos"){
-      return <TodoContainer todos={todos} AddTodo={AddTodo} toggleTodoStatus={ToggleTodoStatus} ui={UI} removeTodo={RemoveTodo} />
+      return <TodoContainer todos={p_todos} AddTodo={AddTodo} toggleTodoStatus={ToggleTodoStatus} ui={UI} removeTodo={RemoveTodo} />
     } else if (UI === "completed"){
       return <Completed todos={completedTodos} removeTodo={RemoveTodo} toggleTodoStatus={ToggleTodoStatus} ui={UI}/>
     } else if (UI === "list") {
