@@ -8,14 +8,6 @@ import ListContainer from './containers/ListContainer/ListContainer';
 import PocketBase from 'pocketbase';
 const pb = new PocketBase(process.env.REACT_APP_URL);
 
-// const starterTodos = [
-//   {id: 1, task: "example to-do 1", checked: false, list: 'Example List 1'},
-//   {id: 2, task: "example to-do 2", checked: false, list: 'Example List 1'},
-//   {id: 3, task: "example to-do 3", checked: false, list: 'Example List 2'},
-//   {id: 4, task: "example to-do 4", checked: false, list: 'Example List 3'},
-//   {id: 5, task: "example to-do 5", checked: false, list: 'Example List 3'},
-// ]
-
 function App() {
   const [UI, setUI] = useState('home')
   const[changes, setChanges] = useState([])
@@ -39,12 +31,15 @@ function App() {
     }, [changes]);
 
   const [listInView, setListInView] = useState('')
-  const getList = () => {
-    const notUniqueList = todos.map((todo) => todo.list);
-    const uniqueList = [...new Set(notUniqueList)]
-    return uniqueList
-  }
-  const [list, setList] = useState(getList())
+  const [list, setList] = useState([]);
+    useEffect(() => {
+    const getList = () => {
+      const notUniqueList = todos.map((todo) => todo.list);
+      const uniqueList = [...new Set(notUniqueList)]
+      setList(uniqueList)
+    }
+    getList()
+  }, [todos]);
 
   const [completedTodos, setCompletedTodos] = useState([]);
     useEffect(() => {
@@ -88,17 +83,6 @@ function App() {
   }
 
   const ToggleTodoStatus = async (todoId, checked) => {
-    // if (checked) {
-    //   const toggledTodo = todos.find(todo => todo.id === todoId);
-    //   toggledTodo.checked = checked;
-    //   RemoveTodo(todoId, "check");
-    //   setCompletedTodo([toggledTodo,...completedTodos]);
-    // } else if (!checked) {
-    //     const toggledTodo = completedTodos.find(todo => todo.id === todoId);
-    //     toggledTodo.checked = checked;
-    //     RemoveTodo(todoId, "un-check");
-    //     setTodos([toggledTodo,...todos])
-    // }
     const data = {checked: checked}
     const record = await pb.collection('todos').update(`${todoId}`, data);
   }
