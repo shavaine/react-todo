@@ -7,59 +7,63 @@ import Completed from './containers/CompletedContainer/CompletedContainer';
 import ListContainer from './containers/ListContainer/ListContainer';
 import PocketBase from 'pocketbase';
 const pb = new PocketBase(process.env.REACT_APP_URL);
+  // const[changes, setChanges] = useState([])
+  //   useEffect(() => {
+  //     const track = async () => {
+  //       const change = pb.collection('todos').subscribe('*', function (e) {
+  //           setChanges(change);
+  //       });
+  //     }
+  //     track();
+  //   }, [changes]);
 
 function App() {
-  const [UI, setUI] = useState('home')
-  const[changes, setChanges] = useState([])
-    useEffect(() => {
-      const track = async () => {
-        const change = pb.collection('todos').subscribe('*', function (e) {
-            setChanges(change);
-        });
-      }
-      track();
-    }, [changes]);
+  const [UI, setUI] = useState('home');
+  const [completedTodos, setCompletedTodos] = useState([]);
+  const [uncompletedTodos, setUncompletedTodos] = useState([]);
+  const [listInView, setListInView] = useState('')
+  
   const [todos, setTodos] = useState([]);
     useEffect(() => {
       const getTodos = async () => {
           const records = await pb.collection('todos').getFullList({
               sort: '-created',
           });
+          console.log("ran")
           setTodos(records);
+          setCompletedTodos(records.filter(todo => todo.checked === true));
+          setUncompletedTodos(records.filter(todo => todo.checked === false));
       }
       getTodos()
-    }, [changes]);
-
-  const [listInView, setListInView] = useState('')
+    }, [todos.length, completedTodos.length, uncompletedTodos.length]);
   const [list, setList] = useState([]);
-    useEffect(() => {
-    const getList = () => {
-      const notUniqueList = todos.map((todo) => todo.list);
-      const uniqueList = [...new Set(notUniqueList)]
-      setList(uniqueList)
-    }
-    getList()
-  }, [todos]);
-
-  const [completedTodos, setCompletedTodos] = useState([]);
-    useEffect(() => {
-      const checked = todos.filter(todo => todo.checked === true);
-      setCompletedTodos(checked)
-    }, [todos]);
-
-  const [uncheckedTodos, setUncheckedTodos] = useState([]);
-    useEffect(() => {
-      const unchecked = todos.filter(todo => todo.checked === false);
-      setUncheckedTodos(unchecked)
+      useEffect(() => {
+      const getList = () => {
+        const notUniqueList = todos.map((todo) => todo.list);
+        const uniqueList = [...new Set(notUniqueList)]
+        setList(uniqueList)
+      }
+      getList()
     }, [todos]);
 
   const AddTodo = async (todo) => {
       const newTodo = {task: todo, checked: false, list: listInView}
-      const record = await pb.collection('todos').create(newTodo);
+      try {
+        const record = await pb.collection('todos').create(newTodo);
+        setTodos([record,...todos]);
+      } catch(error) {
+        console.log('An error as occured.', error)
+      }
   }
 
   const RemoveTodo = async (todoId) => {
-    await pb.collection('todos').delete(`${todoId}`);
+    const toRemove = todos.filter(todo => todo.id !== todoId)
+    try {
+      await pb.collection('todos').delete(`${todoId}`);
+      setTodos(toRemove);
+    } catch(error) {
+      console.log('An error as occured.', error);
+    }
   }
 
   const AddList = (listName) => {
@@ -83,19 +87,30 @@ function App() {
   }
 
   const ToggleTodoStatus = async (todoId, checked) => {
-    const data = {checked: checked}
-    const record = await pb.collection('todos').update(`${todoId}`, data);
+    try {
+      const data = {checked: checked}
+      const record = await pb.collection('todos').update(`${todoId}`, data);
+      if (checked === true) {
+        setUncompletedTodos(uncompletedTodos.filter(todo => todo.id !== todoId));
+        setCompletedTodos([record,...completedTodos]);
+      } else {
+        setCompletedTodos(completedTodos.filter(todo => todo.id !== todoId));
+        setUncompletedTodos([record,...uncompletedTodos]);
+      }
+    } catch(error) {
+      console.log('An error as occured.', error);
+    }
   }
 
   const CurrentUI = () => {
     if (UI === "home") {
       return <Home />
     } else if (UI === "all todos"){
-      return <TodoContainer todos={uncheckedTodos} AddTodo={AddTodo} toggleTodoStatus={ToggleTodoStatus} ui={UI} removeTodo={RemoveTodo} />
+      return <TodoContainer todos={uncompletedTodos} AddTodo={AddTodo} toggleTodoStatus={ToggleTodoStatus} ui={UI} removeTodo={RemoveTodo} />
     } else if (UI === "completed"){
       return <Completed todos={completedTodos} removeTodo={RemoveTodo} toggleTodoStatus={ToggleTodoStatus} ui={UI}/>
     } else if (UI === "list") {
-      return <ListContainer list={uncheckedTodos.filter((todo) => todo.list === listInView)} inView={listInView} removeTodo={RemoveTodo} toggleTodoStatus={ToggleTodoStatus} addTodo={AddTodo} />
+      return <ListContainer list={todos.filter(todo => todo.list === listInView)} inView={listInView} removeTodo={RemoveTodo} toggleTodoStatus={ToggleTodoStatus} addTodo={AddTodo} />
     }
   }
 
