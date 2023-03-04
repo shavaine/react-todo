@@ -8,26 +8,35 @@ import ListContainer from './containers/ListContainer/ListContainer';
 import PocketBase from 'pocketbase';
 const pb = new PocketBase(process.env.REACT_APP_URL);
 
-const starterTodos = [
-  {id: 1, task: "example to-do 1", checked: false, list: 'Example List 1'},
-  {id: 2, task: "example to-do 2", checked: false, list: 'Example List 1'},
-  {id: 3, task: "example to-do 3", checked: false, list: 'Example List 2'},
-  {id: 4, task: "example to-do 4", checked: false, list: 'Example List 3'},
-  {id: 5, task: "example to-do 5", checked: false, list: 'Example List 3'},
-]
+// const starterTodos = [
+//   {id: 1, task: "example to-do 1", checked: false, list: 'Example List 1'},
+//   {id: 2, task: "example to-do 2", checked: false, list: 'Example List 1'},
+//   {id: 3, task: "example to-do 3", checked: false, list: 'Example List 2'},
+//   {id: 4, task: "example to-do 4", checked: false, list: 'Example List 3'},
+//   {id: 5, task: "example to-do 5", checked: false, list: 'Example List 3'},
+// ]
 
 function App() {
   const [UI, setUI] = useState('home')
-  const [todos, setTodos] = useState(starterTodos);
   const[changes, setChanges] = useState([])
-  useEffect(() => {
-    const track = async () => {
-      const change = pb.collection('todos').subscribe('*', function (e) {
-          setChanges(change);
-      });
-    }
-    track();
-  }, [changes]);
+    useEffect(() => {
+      const track = async () => {
+        const change = pb.collection('todos').subscribe('*', function (e) {
+            setChanges(change);
+        });
+      }
+      track();
+    }, [changes]);
+  const [todos, setTodos] = useState([]);
+    useEffect(() => {
+      const getTodos = async () => {
+          const records = await pb.collection('todos').getFullList({
+              sort: '-created',
+          });
+          setTodos(records);
+      }
+      getTodos()
+    }, [changes]);
 
   const [listInView, setListInView] = useState('')
   const getList = () => {
@@ -36,34 +45,26 @@ function App() {
     return uniqueList
   }
   const [list, setList] = useState(getList())
-  const [completedTodos, setCompletedTodo] = useState([]);
-  const [IDCounter, setIDCounter] = useState(5);
-  const [p_todos, setP_todos] = useState([]);
-  useEffect(() => {
-    const getTodos = async () => {
-        const records = await pb.collection('todos').getFullList({
-            sort: '-created',
-        });
-        setP_todos(records);
-    }
-    getTodos()
-  }, [changes]);
 
-  const AddTodo = (todo) => {
-      const newId = IDCounter + 1
-      setIDCounter(newId)
-      const newTodo = {id: newId, task: todo, checked: false, list: listInView}
-      setTodos([newTodo,...todos])
+  const [completedTodos, setCompletedTodos] = useState([]);
+    useEffect(() => {
+      const checked = todos.filter(todo => todo.checked === true);
+      setCompletedTodos(checked)
+    }, [todos]);
+
+  const [uncheckedTodos, setUncheckedTodos] = useState([]);
+    useEffect(() => {
+      const unchecked = todos.filter(todo => todo.checked === false);
+      setUncheckedTodos(unchecked)
+    }, [todos]);
+
+  const AddTodo = async (todo) => {
+      const newTodo = {task: todo, checked: false, list: listInView}
+      const record = await pb.collection('todos').create(newTodo);
   }
 
-  const RemoveTodo = (todoId, type) => {
-    if (type === "check") {
-      const newTodos = todos.filter((currentTodo) => currentTodo.id !== todoId);
-      setTodos(newTodos);
-    } else if (type === "un-check") {
-      const newTodos = completedTodos.filter((currentTodo) => currentTodo.id !== todoId);
-      setCompletedTodo(newTodos);
-    } 
+  const RemoveTodo = async (todoId) => {
+    await pb.collection('todos').delete(`${todoId}`);
   }
 
   const AddList = (listName) => {
@@ -86,31 +87,31 @@ function App() {
     }
   }
 
-  const ToggleTodoStatus = (todoId, checked) => {
-    if (checked) {
-      const toggledTodo = todos.find(todo => todo.id === todoId);
-      toggledTodo.checked = checked;
-      RemoveTodo(todoId, "check");
-      setCompletedTodo([toggledTodo,...completedTodos]);
-      
-    } else if (!checked) {
-        const toggledTodo = completedTodos.find(todo => todo.id === todoId);
-        toggledTodo.checked = checked;
-        RemoveTodo(todoId, "un-check");
-        setTodos([toggledTodo,...todos])
-        
-    }
+  const ToggleTodoStatus = async (todoId, checked) => {
+    // if (checked) {
+    //   const toggledTodo = todos.find(todo => todo.id === todoId);
+    //   toggledTodo.checked = checked;
+    //   RemoveTodo(todoId, "check");
+    //   setCompletedTodo([toggledTodo,...completedTodos]);
+    // } else if (!checked) {
+    //     const toggledTodo = completedTodos.find(todo => todo.id === todoId);
+    //     toggledTodo.checked = checked;
+    //     RemoveTodo(todoId, "un-check");
+    //     setTodos([toggledTodo,...todos])
+    // }
+    const data = {checked: checked}
+    const record = await pb.collection('todos').update(`${todoId}`, data);
   }
 
   const CurrentUI = () => {
     if (UI === "home") {
       return <Home />
     } else if (UI === "all todos"){
-      return <TodoContainer todos={p_todos} AddTodo={AddTodo} toggleTodoStatus={ToggleTodoStatus} ui={UI} removeTodo={RemoveTodo} />
+      return <TodoContainer todos={uncheckedTodos} AddTodo={AddTodo} toggleTodoStatus={ToggleTodoStatus} ui={UI} removeTodo={RemoveTodo} />
     } else if (UI === "completed"){
       return <Completed todos={completedTodos} removeTodo={RemoveTodo} toggleTodoStatus={ToggleTodoStatus} ui={UI}/>
     } else if (UI === "list") {
-      return <ListContainer list={todos.filter((todo) => todo.list === listInView)} inView={listInView} removeTodo={RemoveTodo} toggleTodoStatus={ToggleTodoStatus} addTodo={AddTodo} />
+      return <ListContainer list={uncheckedTodos.filter((todo) => todo.list === listInView)} inView={listInView} removeTodo={RemoveTodo} toggleTodoStatus={ToggleTodoStatus} addTodo={AddTodo} />
     }
   }
 
