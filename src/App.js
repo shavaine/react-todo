@@ -18,6 +18,7 @@ const pb = new PocketBase(process.env.REACT_APP_URL);
   //   }, [changes]);
 
 function App() {
+  const [loading, setLoading] = useState(false);
   const [UI, setUI] = useState('home');
   const [completedTodos, setCompletedTodos] = useState([]);
   const [uncompletedTodos, setUncompletedTodos] = useState([]);
@@ -26,13 +27,14 @@ function App() {
   const [todos, setTodos] = useState([]);
     useEffect(() => {
       const getTodos = async () => {
+          setLoading(true);
           const records = await pb.collection('todos').getFullList({
               sort: '-created',
           });
-          console.log("ran")
           setTodos(records);
           setCompletedTodos(records.filter(todo => todo.checked === true));
           setUncompletedTodos(records.filter(todo => todo.checked === false));
+          setLoading(false);
       }
       getTodos()
     }, [todos.length, completedTodos.length, uncompletedTodos.length]);
@@ -118,7 +120,7 @@ function App() {
     <div className='container-fluid'>
       <div className="row">
         <div className='col-2 bg-secondary'>
-          <SidebarContainer changeUI={ChangeUI} addList={AddList} list={list} />
+          <SidebarContainer changeUI={ChangeUI} addList={AddList} list={list} loading={loading} />
         </div>
         <div className='col-10'>
           {CurrentUI()}
