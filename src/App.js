@@ -34,7 +34,7 @@ function App() {
       setTodos([newTodo,...todos])
   }
 
-  const RemoveTodo = (todoId, type, listId) => {
+  const RemoveTodo = (todoId, type) => {
     if (type === "check") {
       const newTodos = todos.filter((currentTodo) => currentTodo.id !== todoId);
       setTodos(newTodos);
@@ -65,16 +65,18 @@ function App() {
   }
 
   const ToggleTodoStatus = (todoId, checked) => {
-    if (!checked) {
+    if (checked) {
       const toggledTodo = todos.find(todo => todo.id === todoId);
-      toggledTodo.checked = true;
-      setCompletedTodo([toggledTodo,...completedTodos]);
+      toggledTodo.checked = checked;
       RemoveTodo(todoId, "check");
-    } else if (checked) {
+      setCompletedTodo([toggledTodo,...completedTodos]);
+      
+    } else if (!checked) {
         const toggledTodo = completedTodos.find(todo => todo.id === todoId);
-        toggledTodo.checked = false;
-        setTodos([toggledTodo,...todos])
+        toggledTodo.checked = checked;
         RemoveTodo(todoId, "un-check");
+        setTodos([toggledTodo,...todos])
+        
     }
   }
 
@@ -82,7 +84,7 @@ function App() {
     if (UI === "home") {
       return <Home />
     } else if (UI === "all todos"){
-      return <TodoContainer todos={todos} AddTodo={AddTodo} toggleTodoStatus={ToggleTodoStatus} ui={UI} />
+      return <TodoContainer todos={todos} AddTodo={AddTodo} toggleTodoStatus={ToggleTodoStatus} ui={UI} removeTodo={RemoveTodo} />
     } else if (UI === "completed"){
       return <Completed todos={completedTodos} removeTodo={RemoveTodo} toggleTodoStatus={ToggleTodoStatus} ui={UI}/>
     } else if (UI === "list") {
