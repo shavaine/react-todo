@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 
 const SearchBar = ({todos, setResults}) => {
     const [search, setSearch] = useState("");
-    const [filteredTodos, setfilteredTodos] = useState([]);
 
     useEffect(() => {
         const filterFunc = () => {
@@ -15,7 +14,6 @@ const SearchBar = ({todos, setResults}) => {
             return filteredArray
         }
         const searchedArray = filterFunc()
-        setfilteredTodos(searchedArray)
         setResults(searchedArray)
 
     }, [search, setResults, todos])
