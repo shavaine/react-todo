@@ -4,7 +4,7 @@ const CompletedTodo = ({todo, removeTodo, toggleTodoStatus, checked, id}) => {
     };
 
     const handleClick = () => {
-        removeTodo(id, "un-check")
+        removeTodo(id)
     }
 
     return (

@@ -1,47 +1,65 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import TodoContainer from './containers/TodoContainer/TodoContainer';
 import SidebarContainer from './containers/SidebarContainer/SidebarContainer';
 import Home from './components/Home/Home';
 import Completed from './containers/CompletedContainer/CompletedContainer';
 import ListContainer from './containers/ListContainer/ListContainer';
+import LoginContainer from './containers/LoginContainer/LoginContainer';
 
-const starterTodos = [
-  {id: 1, task: "example to-do 1", checked: false, list: 'Example List 1'},
-  {id: 2, task: "example to-do 2", checked: false, list: 'Example List 1'},
-  {id: 3, task: "example to-do 3", checked: false, list: 'Example List 2'},
-  {id: 4, task: "example to-do 4", checked: false, list: 'Example List 3'},
-  {id: 5, task: "example to-do 5", checked: false, list: 'Example List 3'},
-]
+import PocketBase from 'pocketbase';
+const pb = new PocketBase(process.env.REACT_APP_URL);
 
 function App() {
-  const [UI, setUI] = useState('home')
-  const [todos, setTodos] = useState(starterTodos);
+  const loggedIn = pb.authStore.isValid;
+  const [loading, setLoading] = useState(false);
+  const [UI, setUI] = useState('home');
+  const [completedTodos, setCompletedTodos] = useState([]);
+  const [uncompletedTodos, setUncompletedTodos] = useState([]);
   const [listInView, setListInView] = useState('')
-  const getList = () => {
-    const notUniqueList = todos.map((todo) => todo.list);
-    const uniqueList = [...new Set(notUniqueList)]
-    return uniqueList
-  }
-  const [list, setList] = useState(getList())
-  const [completedTodos, setCompletedTodo] = useState([]);
-  const [IDCounter, setIDCounter] = useState(5);
+  
+  const [todos, setTodos] = useState([]);
+    useEffect(() => {
+      const getTodos = async () => {
+          setLoading(true);
+          const records = await pb.collection('todos').getFullList({
+              sort: '-created',
+          });
+          setTodos(records);
+          setCompletedTodos(records.filter(todo => todo.checked === true));
+          setUncompletedTodos(records.filter(todo => todo.checked === false));
+          setLoading(false);
+      }
+      getTodos()
+    }, [todos.length, completedTodos.length, uncompletedTodos.length]);
+  const [list, setList] = useState([]);
+      useEffect(() => {
+      const getList = () => {
+        const notUniqueList = todos.map((todo) => todo.list);
+        const uniqueList = [...new Set(notUniqueList)]
+        setList(uniqueList)
+      }
+      getList()
+    }, [todos]);
 
-  const AddTodo = (todo) => {
-      const newId = IDCounter + 1
-      setIDCounter(newId)
-      const newTodo = {id: newId, task: todo, checked: false, list: listInView}
-      setTodos([newTodo,...todos])
+  const AddTodo = async (todo) => {
+      const newTodo = {task: todo, checked: false, list: listInView}
+      try {
+        const record = await pb.collection('todos').create(newTodo);
+        setTodos([record,...todos]);
+      } catch(error) {
+        console.log('An error as occured.', error)
+      }
   }
 
-  const RemoveTodo = (todoId, type) => {
-    if (type === "check") {
-      const newTodos = todos.filter((currentTodo) => currentTodo.id !== todoId);
-      setTodos(newTodos);
-    } else if (type === "un-check") {
-      const newTodos = completedTodos.filter((currentTodo) => currentTodo.id !== todoId);
-      setCompletedTodo(newTodos);
-    } 
+  const RemoveTodo = async (todoId) => {
+    const toRemove = todos.filter(todo => todo.id !== todoId)
+    try {
+      await pb.collection('todos').delete(`${todoId}`);
+      setTodos(toRemove);
+    } catch(error) {
+      console.log('An error as occured.', error);
+    }
   }
 
   const AddList = (listName) => {
@@ -64,31 +82,48 @@ function App() {
     }
   }
 
-  const ToggleTodoStatus = (todoId, checked) => {
-    if (checked) {
-      const toggledTodo = todos.find(todo => todo.id === todoId);
-      toggledTodo.checked = checked;
-      RemoveTodo(todoId, "check");
-      setCompletedTodo([toggledTodo,...completedTodos]);
-      
-    } else if (!checked) {
-        const toggledTodo = completedTodos.find(todo => todo.id === todoId);
-        toggledTodo.checked = checked;
-        RemoveTodo(todoId, "un-check");
-        setTodos([toggledTodo,...todos])
-        
+  const ToggleTodoStatus = async (todoId, checked) => {
+    try {
+      const data = {checked: checked}
+      const record = await pb.collection('todos').update(`${todoId}`, data);
+      if (checked === true) {
+        setUncompletedTodos(uncompletedTodos.filter(todo => todo.id !== todoId));
+        setCompletedTodos([record,...completedTodos]);
+      } else {
+        setCompletedTodos(completedTodos.filter(todo => todo.id !== todoId));
+        setUncompletedTodos([record,...uncompletedTodos]);
+      }
+    } catch(error) {
+      console.log('An error as occured.', error);
     }
   }
 
+  const login = async(username, password) => {
+    setLoading(true);
+    try {
+      await pb.collection('users').authWithPassword(username,password);
+    } catch(e) {
+      alert(e)
+    }
+    ChangeUI("home");
+    setLoading(false);
+  }
+
+  const logout = () => {
+    pb.authStore.clear();
+    ChangeUI("login");
+  }
   const CurrentUI = () => {
-    if (UI === "home") {
+    if (UI === "home" && loggedIn) {
       return <Home />
-    } else if (UI === "all todos"){
-      return <TodoContainer todos={todos} AddTodo={AddTodo} toggleTodoStatus={ToggleTodoStatus} ui={UI} removeTodo={RemoveTodo} />
-    } else if (UI === "completed"){
+    } else if (UI === "all todos" && loggedIn){
+      return <TodoContainer todos={uncompletedTodos} AddTodo={AddTodo} toggleTodoStatus={ToggleTodoStatus} ui={UI} removeTodo={RemoveTodo} />
+    } else if (UI === "completed" && loggedIn){
       return <Completed todos={completedTodos} removeTodo={RemoveTodo} toggleTodoStatus={ToggleTodoStatus} ui={UI}/>
-    } else if (UI === "list") {
-      return <ListContainer list={todos.filter((todo) => todo.list === listInView)} inView={listInView} removeTodo={RemoveTodo} toggleTodoStatus={ToggleTodoStatus} addTodo={AddTodo} />
+    } else if (UI === "list" && loggedIn) {
+      return <ListContainer list={todos.filter(todo => todo.list === listInView)} inView={listInView} removeTodo={RemoveTodo} toggleTodoStatus={ToggleTodoStatus} addTodo={AddTodo} />
+    } else if (UI === "login" && !loggedIn) {
+      return <LoginContainer login={login} loading={loading}/>
     }
   }
 
@@ -96,7 +131,7 @@ function App() {
     <div className='container-fluid'>
       <div className="row">
         <div className='col-2 bg-secondary'>
-          <SidebarContainer changeUI={ChangeUI} addList={AddList} list={list} />
+          <SidebarContainer changeUI={ChangeUI} addList={AddList} list={list} loading={loading} loggedIn={loggedIn} logout={logout} />
         </div>
         <div className='col-10'>
           {CurrentUI()}
