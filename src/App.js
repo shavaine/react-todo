@@ -5,19 +5,13 @@ import SidebarContainer from './containers/SidebarContainer/SidebarContainer';
 import Home from './components/Home/Home';
 import Completed from './containers/CompletedContainer/CompletedContainer';
 import ListContainer from './containers/ListContainer/ListContainer';
+import LoginContainer from './containers/LoginContainer/LoginContainer';
+
 import PocketBase from 'pocketbase';
 const pb = new PocketBase(process.env.REACT_APP_URL);
-  // const[changes, setChanges] = useState([])
-  //   useEffect(() => {
-  //     const track = async () => {
-  //       const change = pb.collection('todos').subscribe('*', function (e) {
-  //           setChanges(change);
-  //       });
-  //     }
-  //     track();
-  //   }, [changes]);
 
 function App() {
+  const [loggedIn, setLoggedIn] = useState(pb.authStore.isValid)
   const [loading, setLoading] = useState(false);
   const [UI, setUI] = useState('home');
   const [completedTodos, setCompletedTodos] = useState([]);
@@ -104,15 +98,31 @@ function App() {
     }
   }
 
+  const login = async(username, password) => {
+    const authData = await pb.collection('users').authWithPassword(
+        username,
+        password,
+    );
+    ChangeUI("home");
+    setLoggedIn(pb.authStore.isValid);
+  }
+
+  const logout = () => {
+    pb.authStore.clear();
+    setLoggedIn(pb.authStore.isValid);
+    ChangeUI("login");
+  }
   const CurrentUI = () => {
-    if (UI === "home") {
+    if (UI === "home" && loggedIn) {
       return <Home />
-    } else if (UI === "all todos"){
+    } else if (UI === "all todos" && loggedIn){
       return <TodoContainer todos={uncompletedTodos} AddTodo={AddTodo} toggleTodoStatus={ToggleTodoStatus} ui={UI} removeTodo={RemoveTodo} />
-    } else if (UI === "completed"){
+    } else if (UI === "completed" && loggedIn){
       return <Completed todos={completedTodos} removeTodo={RemoveTodo} toggleTodoStatus={ToggleTodoStatus} ui={UI}/>
-    } else if (UI === "list") {
+    } else if (UI === "list" && loggedIn) {
       return <ListContainer list={todos.filter(todo => todo.list === listInView)} inView={listInView} removeTodo={RemoveTodo} toggleTodoStatus={ToggleTodoStatus} addTodo={AddTodo} />
+    } else if (UI === "login" && !loggedIn) {
+      return <LoginContainer login={login} />
     }
   }
 
@@ -120,7 +130,7 @@ function App() {
     <div className='container-fluid'>
       <div className="row">
         <div className='col-2 bg-secondary'>
-          <SidebarContainer changeUI={ChangeUI} addList={AddList} list={list} loading={loading} />
+          <SidebarContainer changeUI={ChangeUI} addList={AddList} list={list} loading={loading} loggedIn={loggedIn} logout={logout} />
         </div>
         <div className='col-10'>
           {CurrentUI()}
