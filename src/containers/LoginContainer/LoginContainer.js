@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 
 const currentDate = new Date().getFullYear()
-const LoginContainer = ({login}) => {
+const LoginContainer = ({login, loading}) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const handleSubmit = (e) => {
@@ -13,6 +13,8 @@ const LoginContainer = ({login}) => {
 
     return (
         <main className="form-signin w-100 m-auto">
+            { loading ?  <h5 className="text-center">...Loading</h5>
+            :
             <form onSubmit={handleSubmit} className='text-center'>
                 <h1><i className="bi bi-person-circle"></i></h1>
                 <h1 className="h3 mb-3 fw-normal">Login</h1>
@@ -27,6 +29,7 @@ const LoginContainer = ({login}) => {
                 <button className="w-100 btn btn-lg btn-primary" type="submit">Login</button>
                 <p className="mt-5 mb-3 text-muted">Shavaine Brown - ©{currentDate}</p>
             </form>
+            }
         </main>
     );
 }

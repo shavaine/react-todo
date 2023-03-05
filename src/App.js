@@ -11,7 +11,7 @@ import PocketBase from 'pocketbase';
 const pb = new PocketBase(process.env.REACT_APP_URL);
 
 function App() {
-  const [loggedIn, setLoggedIn] = useState(pb.authStore.isValid)
+  const loggedIn = pb.authStore.isValid;
   const [loading, setLoading] = useState(false);
   const [UI, setUI] = useState('home');
   const [completedTodos, setCompletedTodos] = useState([]);
@@ -99,17 +99,18 @@ function App() {
   }
 
   const login = async(username, password) => {
-    const authData = await pb.collection('users').authWithPassword(
-        username,
-        password,
-    );
+    setLoading(true);
+    try {
+      await pb.collection('users').authWithPassword(username,password);
+    } catch(e) {
+      alert(e)
+    }
     ChangeUI("home");
-    setLoggedIn(pb.authStore.isValid);
+    setLoading(false);
   }
 
   const logout = () => {
     pb.authStore.clear();
-    setLoggedIn(pb.authStore.isValid);
     ChangeUI("login");
   }
   const CurrentUI = () => {
@@ -122,7 +123,7 @@ function App() {
     } else if (UI === "list" && loggedIn) {
       return <ListContainer list={todos.filter(todo => todo.list === listInView)} inView={listInView} removeTodo={RemoveTodo} toggleTodoStatus={ToggleTodoStatus} addTodo={AddTodo} />
     } else if (UI === "login" && !loggedIn) {
-      return <LoginContainer login={login} />
+      return <LoginContainer login={login} loading={loading}/>
     }
   }
 

@@ -23,7 +23,7 @@ const SidebarContainer = ({changeUI, list, addList, loading, loggedIn, logout}) 
           </ul>
           : 
           <ul className="nav flex-column mb-auto h-100">
-            <li onClick={() => changeUI("login")} className="text-start btn btn-outline-dark border-0" >Login</li>
+            <li onClick={() => changeUI("login")} className="text-center btn btn-outline-dark border-0" >Login</li>
           </ul>
           }
         
